@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Depends
+from fastapi import APIRouter, Depends
 from typing import List
 
 from models.basemodels import Estado
 from dependencies.dependencies import get_pg_pool
 from asyncpg import Pool
-data = FastAPI()
+
+data = APIRouter()
 
 ################################################################################
 
@@ -16,7 +17,10 @@ async def get_estados(
         SELECT * FROM ESTADOS;
     """
     async with pool.acquire() as conn:
-        return conn.fetch(QUERY_ESTADOS)
+        return [
+            Estado(**estado)
+            for estado in await conn.fetch(QUERY_ESTADOS)
+        ]
 
 # @data.get("/estados/{co_uf}")
 # async def get_estado(

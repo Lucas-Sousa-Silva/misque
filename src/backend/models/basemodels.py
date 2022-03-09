@@ -4,8 +4,8 @@ from typing import List, Optional, Union
 from enum import Enum
 
 class Estado(BaseModel):
-    codigo: int
-    sigla: str
+    co_uf: int
+    sg_uf: str
 
 class Municipio(BaseModel):
     codigo:int

@@ -41,14 +41,16 @@ run-database:
 build-rest-service:
 	docker build \
 		-f deployment/backend/Dockerfile . \
-		--network=host\
-		--tag=backend-enem
+		--tag=backend-image
+
 
 # Run the rest api
 run-rest-service:
-	docker run\
-		-p 8000:8000\
-		--name=backend-enem
+	docker run -d\
+		--name=backend\
+		-p 8000:8000/tcp\
+		--network=host\
+		backend-image
 
 ### Utilitites ################################################################
 access-database:# Access the database with psql >>> SO USEFUL
