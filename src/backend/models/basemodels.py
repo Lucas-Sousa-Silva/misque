@@ -8,14 +8,16 @@ class Estado(BaseModel):
     sg_uf: str
 
 class Municipio(BaseModel):
-    codigo:int
-    nome:str
+    co_municipio:int
+    co_uf_estado:int
+    no_municipio:str
 
+# TODO : Consertar coisas abaixo - Tarefa pro Davi.
 class Participante(BaseModel):
     inscricao: int
     ano_enem: int
     idade: int
-    sexo: int
+    sexo: bool
     estado_civil: int
     cor: int
     situacao_conclusao : str

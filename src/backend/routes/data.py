@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from typing import List
 
-from models.basemodels import Estado
+from models.basemodels import Estado, Municipio
 from dependencies.dependencies import get_pg_pool
 from asyncpg import Pool
 
@@ -29,9 +29,20 @@ async def get_estados(
 #     return 
 
 
-# # @data.get("/municipios")
-# # async def get_municipios():
-# #     return 
+@data.get("/municipios")
+async def get_municipios(
+    pool: Pool = Depends(get_pg_pool)
+):
+    QUERY_MUNICIPIOS="""
+        SELECT * FROM MUNICIPIOS;
+    """
+    muns = []
+    async with pool.acquire() as conn:
+        for m in await conn.fetch(QUERY_MUNICIPIOS):
+            muns.append(Municipio(**m))
+    return muns
+        
+
 
 # # @data.get("/municipios/{co_municipio}/escolas")
 # # async def get_escolas_by_municipio(
