@@ -1,5 +1,5 @@
 # misque
-Este projeto tem o objetivo de ser uma versão similar ao enem digital.
+Este projeto tem o objetivo de ser uma versão similar ao enem digital!
 
 ## Objetivos gerais
 - Criar uma aplicação em que qualquer pessoa possa fazer um teste semelhante ao enem.
