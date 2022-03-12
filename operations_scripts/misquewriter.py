@@ -16,7 +16,7 @@ import copy
 from tqdm import tqdm
 import asyncpg
 import asyncio
-path = "/home/lucas/Downloads/MICRODADOS_ENEM_2019/DADOS/MICRODADOS_ENEM_2019.csv"
+path = "/home/davi/Downloads/MICRODADOS_ENEM_2019/DADOS/MICRODADOS_ENEM_2019.csv"
 connection_options = {
     "user":"enem",
     "password":"catapimbas",
