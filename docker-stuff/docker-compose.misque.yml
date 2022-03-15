@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+
+  backend:
+    build: backend/.
+    #restart: always
+    entrypoint: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - ../src/backend:/opt/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    networks: ['misquenet']
+  database:
+    image: postgres:14.2-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: bind
+        source: '${LOCAL_PG_DIR}'
+        target: '/var/lib/postgresql/data'
+    environment:
+      POSTGRES_USER: '${PG_USER}'
+      POSTGRES_PASSWORD: '${PG_PASSWORD}'
+    networks: ['misquenet']
+networks: {misquenet: {}}
