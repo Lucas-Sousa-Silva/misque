@@ -5,7 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 origins = ["http://localhost:8000", "*"]
 
-app = FastAPI(title="misque - API REST de dados do ENEM")
+app = FastAPI(
+    title="misque - API REST de dados do ENEM",
+    description="Uma api de dados abertos acerca de microdados do enem",
+)
 
 app.add_middleware(
     CORSMiddleware,
