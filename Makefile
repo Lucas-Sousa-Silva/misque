@@ -18,40 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-include deployment/misque-deployment.dev.env
-
-### POSTGRESQL ################################################################
-# Create and run a container that will host postgres.
-build-database:
-	docker run -d\
-		-e POSTGRES_USER="${PG_USER}"\
-		-e POSTGRES_PASSWORD="${PG_PASSWORD}"\
-		-v LOCAL_PG_DIR:/var/lib/postgresql/data\
-		-p 5432:5432\
-		--name=postgres_enem\
-		--network=host\
-		postgres:14.2-alpine
-
-# Host postgres in a container.
-run-database:
-	docker start postgres_enem
-
-### Backend REST ##############################################################
-# Build the image that host all the REST api things
-build-rest-service:
-	docker build \
-		-f deployment/backend/Dockerfile . \
-		--tag=backend-image
-
-
-# Run the rest api
-run-rest-service:
-	docker run -d\
-		--name=backend\
-		-p 8000:8000/tcp\
-		--network=host\
-		backend-image
-
-### Utilitites ################################################################
+# ### Utilitites ################################################################
 access-database:# Access the database with psql >>> SO USEFUL
-	docker exec -it postgres_enem psql --username="${PG_USER}" --password
+	docker exec -it misque-database-1 psql --username="${PG_USER}" --password
+
+# ### Run the project
+run-misque:
+	docker compose -f docker-stuff/docker-compose.misque.yml\
+		--env-file docker-stuff/environment.misque.env\
+		up -d
+
+stop-misque:
+	docker compose down docker-stuff/docker-compose.misque.yml
