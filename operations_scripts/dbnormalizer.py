@@ -10,6 +10,7 @@ Make normalizations about data.
 import asyncpg, asyncio, click, copy
 from tqdm import tqdm
 from pprint import pprint
+
 connection_options = {
     "user":"enem",
     "password":"catapimbas",
@@ -66,4 +67,5 @@ async def main():
             cmds["processing"].remove(item)
             cmds["finished"].append(item)
             show(cmds)
+
 asyncio.run(main())

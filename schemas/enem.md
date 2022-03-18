@@ -1,5 +1,5 @@
 # Enem - Production schema description
-## *Depict of the main tables.*
+## *Monstruário de tabelas principais.*
 
 **ESTADOS**
 - CO_UF
