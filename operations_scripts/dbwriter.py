@@ -1,31 +1,22 @@
 """
-              _                                    _ __           
-   ____ ___  (_)________ ___  _____ _      _______(_) /____  _____
-  / __ `__ \/ / ___/ __ `/ / / / _ \ | /| / / ___/ / __/ _ \/ ___/
- / / / / / / (__  ) /_/ / /_/ /  __/ |/ |/ / /  / / /_/  __/ /    
-/_/ /_/ /_/_/____/\__, /\__,_/\___/|__/|__/_/  /_/\__/\___/_/     
-                    /_/                                           
-
+       ____                 _ __           
+  ____/ / /_ _      _______(_) /____  _____
+ / __  / __ \ | /| / / ___/ / __/ _ \/ ___/
+/ /_/ / /_/ / |/ |/ / /  / / /_/  __/ /    
+\__,_/_.___/|__/|__/_/  /_/\__/\___/_/     
+                                           
 Write all the the fields of the archive of the <path>.
 All the records will be written in the postgres described in <connection_options>.
-
 """
-import csv
-import os
-import copy
+import asyncio, copy, csv, os, asyncpg
 from tqdm import tqdm
-import asyncpg
-import asyncio
 
 path = "/home/lucas/Downloads/MICRODADOS_ENEM_2019/DADOS/MICRODADOS_ENEM_2019.csv"
-
 connection_options = {
     "user":"enem",
     "password":"catapimbas",
     "host":"127.0.0.1",
-    "port":5432,
-    "max_size":20,
-    "min_size":20,
+    "port":5432
 }
 
 def read_row(file):
@@ -41,13 +32,12 @@ with open(path,"r",encoding="ISO-8859-1") as f:
     print(f"number of lines = {number_of_lines}")
 
 
-async def create_pool(**options):
-    return await asyncpg.create_pool(**options)
-
-
-
+async def get_connection(**options):
+    return await asyncpg.connect(**options)
 
 async def write():
+    conn = await get_connection(**connection_options)
+    print("connected")
     typelist = [
         int,int,int,str,int,str,int,bool,int,int,int,int,str,int,str,int,int,int,
         int,bool,int,int,str,int,str,int,str,int,bool,bool,bool,bool,bool,bool,
@@ -75,47 +65,19 @@ async def write():
                 result.append(typelist[counter]())
             counter += 1
         return result
-
-
     dollar_signs = lambda x : "".join(map(lambda x: f"${x}, ",range(1,x)))[:-2]
-    QUERY = "INSERT INTO INSCRITOS VALUES(" + dollar_signs(136+1) + ");"
-    
-
-    pool = await create_pool(**connection_options)
-    print("connected")
-
-    que = asyncio.Queue(maxsize=32)
-    async def writer(name, queue:asyncio.Queue):
-        async with pool.acquire() as conn:
-            while True:
-                data = await queue.get()
-                #print("Worker ", name)                
-                try:
-                    await conn.executemany(QUERY, [convert(i) for i in data])
-                except asyncpg.exceptions.UniqueViolationError as e:
-                    pass#Do nothing
-                queue.task_done()
-
-    tasks = []
-    for i in range(16):
-        task = asyncio.create_task(writer(i, que))
-        tasks.append(task)
-
-    print("starting to process everything")
-    
+    QUERY = "INSERT INTO INSCRITOS VALUES(" + dollar_signs(136+1) + ") ON CONFLICT DO NOTHING;"
+    print(QUERY)
+    buff = []
     with open(path,"r",encoding="ISO-8859-1") as f:
         x = read_row(f)
-        buff = []
-        pks_repetidas = 0
+
         for line in tqdm(x, total=number_of_lines , unit=' rows'):
             buff.append(line)
-            if len(buff) > 2048:
-                await que.put(buff)
+            if len(buff) >= 2048:
+                await conn.executemany(QUERY,[convert(i) for i in buff])
                 buff = []
-        if buff:
-            await conn.executemany(QUERY, [convert(i) for i in buff])
-        print(f"{pks_repetidas=}")
+        await conn.executemany(QUERY, [convert(i) for i in buff])
 
 
 asyncio.run(write())
-

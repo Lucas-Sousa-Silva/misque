@@ -12,20 +12,19 @@ class Municipio(BaseModel):
     co_uf_estado:int
     no_municipio:str
 
-# TODO : Consertar coisas abaixo - Tarefa pro Davi.
 class Participante(BaseModel):
-    inscricao: int
-    ano_enem: int
-    idade: int
-    sexo: bool
-    estado_civil: int
-    cor: int
-    situacao_conclusao : str
-    ano_conclusao : int
-    treineiro: bool
+    nu_inscricao: int
+    nu_ano: int
+    nu_idade: int
+    tp_sexo: bool
+    tp_estado_civil: int
+    tp_cor_raca: int
+    tp_st_conclusao : str
+    tp_ano_concluiu : int
+    in_treineiro: bool
 
 class Escola(BaseModel):
-    codigo: int
+    co_codigo: int
     dependencia : int
     localizacao : int
     situacao_funcionamento : int

@@ -9,7 +9,11 @@ data = APIRouter()
 
 ################################################################################
 
-@data.get("/estados")
+@data.get(
+    "/estados",
+    description="Retorna todos os estados.",
+    response_model=List[Estado],
+)
 async def get_estados(
     pool: Pool = Depends(get_pg_pool)
 ) -> List[Estado]:
@@ -29,7 +33,11 @@ async def get_estados(
 #     return 
 
 
-@data.get("/municipios")
+@data.get(
+    "/municipios",
+    description="Retorna todos os municipios existentes.(Pode demorar)",
+    response_model=List[Municipio],
+)
 async def get_municipios(
     pool: Pool = Depends(get_pg_pool)
 ):
