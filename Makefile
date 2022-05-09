@@ -30,3 +30,9 @@ run-misque:
 
 stop-misque:
 	docker compose down docker-stuff/docker-compose.misque.yml
+
+logs-misque:
+	docker compose -f docker-stuff/docker-compose.misque.yml\
+		--env-file docker-stuff/environment.misque.env\
+		logs -f --tail=200
+
