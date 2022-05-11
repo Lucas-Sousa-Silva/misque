@@ -1,9 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional, Union
 
-class Message(BaseModel):
-    message:str
-
 class Estado(BaseModel):
     """Classe representa dados de um estado."""
     co_uf: int = Field(default=0   , title="Código da Unidade Federativa.")

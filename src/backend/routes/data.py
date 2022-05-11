@@ -1,24 +1,31 @@
 from asyncpg import Pool
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from dependencies.dependencies import get_pg_pool
+from typing import List
+from dependencies.dependencies import get_pool
+from models.basemodels import (
+    AtendimentoEeE,
+    AtendimentoEspecializado,
+    AtendimentoEspecifico,
+    Escola,
+    Estado,
+    Municipio,
+    Participante,
+)
 
-from models.basemodels import (AtendimentoEeE, AtendimentoEspecializado,
-                               AtendimentoEspecifico, Escola, Estado, Message,
-                               Municipio, Participante)
-
-data = APIRouter(tags=['data'],)
+data = APIRouter(tags=['data'],prefix="/data")
 
 ################################################################################
 @data.get(
     "/estados",
-    response_model=list[Estado],
+    response_model=List[Estado],
+
 )
 async def get_estados(
-    pool: Pool = Depends(get_pg_pool),
-) -> list[Estado]:
+    pool: Pool = Depends(get_pool),
+) -> List[Estado]:
     """ Retorna todos os estados. """
     QUERY_ESTADOS = """
         SELECT
@@ -31,18 +38,19 @@ async def get_estados(
             for estado in await conn.fetch(QUERY_ESTADOS)
         ]
 
+
 ################################################################################
 @data.get(
     "/estados/{co_uf}",
-    response_model=list[Estado],
+    response_model=List[Estado],
     responses={
-        404:{"model": Message,"description":"Estado não encontrado"}
+        404:{"description":"Estado não encontrado"}
     }
 )
 async def get_estado_por_codigo(
     co_uf: int,
-    pool: Pool = Depends(get_pg_pool),
-)->list[Estado]:
+    pool: Pool = Depends(get_pool),
+)->List[Estado]:
     """Retorna todos os municipios de um certo estado."""
     QUERY_MUNICIPIOS = """
         SELECT
@@ -67,18 +75,19 @@ async def get_estado_por_codigo(
             )
         )
 
+
 ################################################################################
 @data.get(
     "/estados/{co_uf}/municipios",
-    response_model=list[Municipio],
+    response_model=List[Municipio],
     responses={
-        404:{"model": Message,"description":"Estado não encontrado"}
+        404:{"description":"Estado não encontrado"}
     }
 )
 async def get_municipios_por_estado(
     co_uf: int,
-    pool: Pool = Depends(get_pg_pool),
-)->list[Municipio]:
+    pool: Pool = Depends(get_pool),
+)->List[Municipio]:
     """Retorna todos os municipios de um certo estado."""
     QUERY_MUNICIPIOS = """
         SELECT
@@ -103,20 +112,21 @@ async def get_municipios_por_estado(
             )
         )
 
+
 ################################################################################
 @data.get(
     "/estados/{co_uf}/municipios/{co_municipio}",
-    response_model=list[Municipio],
+    response_model=List[Municipio],
     responses={
         200:{"title":"asdfasdf"},
-        404:{"model": Message,"description":"Estado ou municipio não encontrado"}
+        404:{"description":"Estado ou municipio não encontrado"}
     },
 )
 async def get_municipio_por_codigo_uf_e_co_municipio(
     co_uf: int,
     co_municipio:int,
-    pool: Pool = Depends(get_pg_pool),
-)->list[Municipio]:
+    pool: Pool = Depends(get_pool),
+)->List[Municipio]:
     """Retorna o municipio especificado pelo <strong>co_uf_estado</strong> e <strong>co_municipio</strong>."""
     QUERY_MUNICIPIOS = """
         SELECT
@@ -142,19 +152,20 @@ async def get_municipio_por_codigo_uf_e_co_municipio(
             )
         )
 
+
 ################################################################################
 @data.get(
     "/estados/{co_uf}/municipios/{co_municipio}/escolas",
-    response_model=list[Escola],
+    response_model=List[Escola],
     responses={
-        404:{"model": Message,"description":"Estado ou municipio não encontrado"}
+        404:{"description":"Estado ou municipio não encontrado"}
     },
 )
 async def get_escolas_por_co_municipio_co_uf_estado(
     co_uf: int,
     co_municipio:int,
-    pool: Pool = Depends(get_pg_pool),
-)->list[Municipio]:
+    pool: Pool = Depends(get_pool),
+)->List[Municipio]:
     """Retorna o municipio especificado pelo <strong>co_uf_estado</strong> e <strong>co_municipio</strong>."""
     QUERY_MUNICIPIOS = """
         SELECT
@@ -170,28 +181,18 @@ async def get_escolas_por_co_municipio_co_uf_estado(
             );
     """
     async with pool.acquire() as conn:
-        escolas = [
-            Escola(**e)
-            for e in await conn.fetch(QUERY_MUNICIPIOS, co_uf, co_municipio)
-        ]
-        return(
-            escolas
-            if escolas
-            else JSONResponse(
-                status_code=404,
-                content={
-                    "message": f"{co_uf=} ou {co_municipio=} não existe no banco de dados."
-                }
-            )
-        )
+        if escolas := await conn.fetch(QUERY_MUNICIPIOS,co_uf, co_municipio, ):
+            return escolas
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="")
+
 
 ################################################################################
 @data.get(
     "/escolas",
-    response_model=list[Escola],
+    response_model=List[Escola],
 )
 async def get_escolas(
-    pool:Pool = Depends(get_pg_pool)
+    pool:Pool = Depends(get_pool)
 ):
     """ Retorna todas as escolas que estão no banco de dados. """
     QUERY_ESCOLAS = """
@@ -208,12 +209,13 @@ async def get_escolas(
             for e in await conn.fetch(QUERY_ESCOLAS)
         ]
 
+
 # @data.get(
 #     "/participantes",
 #     response_model=List[Participante]
 # )
 # async def get_participantes(
-#     pool:Pool = Depends(get_pg_pool),
+#     pool:Pool = Depends(get_pool),
 # )->List[Participante]:
 #     """
 #     Aqui se faz uma query na tabela principal do banco de dados. A tabela de

@@ -29,7 +29,7 @@ run-misque:
 		up -d
 
 stop-misque:
-	docker compose down docker-stuff/docker-compose.misque.yml
+	docker compose -f docker-stuff/docker-compose.misque.yml down 
 
 logs-misque:
 	docker compose -f docker-stuff/docker-compose.misque.yml\
