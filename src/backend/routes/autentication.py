@@ -1,13 +1,26 @@
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import(
+    OAuth2PasswordBearer,
+    OAuth2PasswordRequestForm
+)
 
+from pydantic import BaseModel, Field
+
+class Usuario(BaseModel):
+    nick : str
+    password : str 
+
+usuarios = [
+    Usuario(nick="josisvaldo", password="vidaloka"),
+    Usuario(nick="negueba", password="acai"),
+]
 
 autentication = APIRouter(tags=["autentication"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-@autentication.get("/token",)
-async def get_token(
-    token: str = Depends(oauth2_scheme)
+@autentication.post("/token")
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends()
 ):
-    return {"token":token}
+    return form_data

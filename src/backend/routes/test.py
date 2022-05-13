@@ -1,12 +1,16 @@
-from fastapi import APIRouter, Body, Path, Depends
+""" API for """
+from fastapi import APIRouter, Body, Path, Depends, HTTPException, status
 from asyncpg import Pool
 from typing import List
+
 from dependencies.dependencies import get_pool
+
 from models.testingmodels import (
     Materia,
-    ProvaENEM,
+    TesteENEM,
 )
-test = APIRouter(prefix="/test")
+
+test = APIRouter(prefix="/test", tags=["testes"])
 
 materias = [
     Materia(
@@ -44,7 +48,9 @@ async def get_materias(
     co_materia: str,
     pool: Pool = Depends(get_pool),
 ):
-    return [*filter(lambda mat: mat.codigo==co_materia,materias)]
+    if materia:=[*filter(lambda mat: mat.codigo==co_materia,materias)]:
+        return materia
+    raise HTTPException(status.HTTP_404_NOT_FOUND, f"A materia with {co_materia=} can't be found.")
 
 # ###############################################################################
 # @test.get(

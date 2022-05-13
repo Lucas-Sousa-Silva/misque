@@ -26,7 +26,7 @@ access-database:# Access the database with psql >>> SO USEFUL
 run-misque:
 	docker compose -f docker-stuff/docker-compose.misque.yml\
 		--env-file docker-stuff/environment.misque.env\
-		up -d
+		up -d --build
 
 stop-misque:
 	docker compose -f docker-stuff/docker-compose.misque.yml down 
