@@ -1,18 +1,21 @@
 import uuid
-
-from typing import List, Dict, Optional
-from pydantic import BaseModel, Field, validator, ValidationError
 from datetime import date, datetime
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Field, ValidationError, validator
 
 # Usable regexes
-regex_nick  = r"[0-9a-z]*"
+regex_nick  = r"[a-zA-Z0-9_-]*"
 regex_senha = r"[0-9a-z]*"
 
 class Conta(BaseModel):
 
-    nick: str = Field(description="Nick da conta", min_length=6, max_length=15, regex=regex_nick)
+    nick: str = Field(description="Nick da conta", min_length=6, max_length=20, regex=regex_nick)
     nascimento: date = Field(description="Nascimento do usuário")
 
+class ContaComHash(Conta):
+
+    hashed_password:str = Field()
 
 class Questao(BaseModel):
 

@@ -1,19 +1,12 @@
-from asyncpg import Pool
-
-from fastapi import APIRouter, Depends, HTTPException, status
-
 from typing import List
+
+from asyncpg import Pool
 from dependencies.dependencies import get_pool
-from models.basemodels import (
-    AtendimentoEeE,
-    AtendimentoEspecializado,
-    AtendimentoEspecifico,
-    Escola,
-    Estado,
-    Municipio,
-    Participante,
-)
-from routes.autentication import oauth2_scheme
+from fastapi import APIRouter, Depends, HTTPException, status
+from models.basemodels import (AtendimentoEeE, AtendimentoEspecializado,
+                               AtendimentoEspecifico, Escola, Estado,
+                               Municipio, Participante)
+
 data = APIRouter(tags=['data'],prefix="/data",)
 
 

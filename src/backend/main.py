@@ -1,18 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from starlette.responses import FileResponse
 
+from database.database_connections import create_postgres_pool
+from routes.autentication import autentication
 from routes.data import data
 from routes.test import test
-from routes.autentication import autentication
-from database.database_connections import create_postgres_pool
 
 app = FastAPI(
     title="misque - API REST de dados do ENEM",
     description="Uma api de dados abertos acerca de microdados do enem",
-    docs_url=None, redoc_url=None,
+    docs_url=None, redoc_url=None, version="0.0.1"
 )
+
 ###
 # # Add the routers from ./backend/routes
 ###
@@ -22,14 +23,14 @@ app.include_router(test)
 app.include_router(autentication)
 
 # Add middleware for managing foreign redirects.
-origins = ["http://localhost:8000", "*"]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# origins = ["http://localhost:8000", "*"]
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def get_favicon():

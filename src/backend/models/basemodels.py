@@ -3,16 +3,17 @@ from typing import List, Optional, Union
 
 class Estado(BaseModel):
     """Classe representa dados de um estado."""
-    co_uf: int = Field(default=0   , title="Código da Unidade Federativa.")
-    sg_uf: str = Field(default="??", title="Sigal da Unidade Federativa.")
+    co_uf: int = Field(title="Código da Unidade Federativa.")
+    sg_uf: str = Field(title="Sigal da Unidade Federativa.")
 
 class Municipio(BaseModel):
     """ Classe que representa um municipio. """
-    co_municipio:int = Field(default=0, title="Código do municipio.")
-    co_uf_estado:int = Field(default=0, title="Código da Unidade Federativa do estado correspondente.")
-    no_municipio:str = Field(default="???", title="Nome do município.")
+    co_municipio:int = Field(title="Código do municipio.")
+    co_uf_estado:int = Field(title="Código da Unidade Federativa do estado correspondente.")
+    no_municipio:str = Field(title="Nome do município.")
 
 class Participante(BaseModel):
+    """ Classe que representa um participante. """
     nu_inscricao: int = Field(title="Número de inscrição do participante.")
     nu_ano: int = Field(title="Ano de realização da prova.")
     nu_idade: int = Field(title="Idade do participante.")
@@ -26,12 +27,14 @@ class Participante(BaseModel):
     in_treineiro: bool = Field(title="Indica se o inscrito fez a prova com intuito de apenas treinar seus conhecimentos.")
 
 class Escola(BaseModel):
+    """ Classe que representa uma escola. """
     co_escola: int = Field(title="Código da Escola.")
     tp_dependencia_adm_esc : int = Field(title="Dependência administrativa.")
     tp_localizacao_esc : int = Field(title="Localização.")
     tp_sit_func_esc : int = Field(title="Situação de funcionamento.")
 
 class AtendimentoEspecializado(BaseModel):
+    """ Classe que representa um atendimento especializado. """
     in_baixa_visao :bool = Field(title="Indicador de baixa visão.")
     in_cegueira :bool = Field(title="Indicador de cegueira.")
     in_surdez :bool = Field(title="Indicador de surdez.")
@@ -47,12 +50,14 @@ class AtendimentoEspecializado(BaseModel):
     in_outra_def :bool = Field(title="Indicador de outra deficiência ou condição especial.")
 
 class AtendimentoEspecifico(BaseModel):
+    """ Classe que representa um atendimento específico. """
     in_gestante: bool = Field(title="Indicador de gestante.")
     in_lactante: bool = Field(title="Indicador de lactante.")
     in_idoso: bool = Field(title="Indicador de inscrito idoso.")
     in_estuda_classe_hospitalar: bool = Field(title="Indicador de inscrição em Unidade Hospitalar.")
 
 class AtendimentoEeE(BaseModel):
+    """ Classe que representa um atendimento específico e especializado. """
     in_sem_recurso: bool = Field(title="Indicador de inscrito que não requisitou nenhum recurso.")
     in_braille: bool = Field(title="Indicador de solicitação de prova em braille.")
     in_ampliada_24: bool = Field(title="Indicador de solicitação de prova superampliada com fonte tamanho 24.")
@@ -94,6 +99,7 @@ class AtendimentoEeE(BaseModel):
     )
 
 class DadosProvaObjetiva(BaseModel):
+    """ Classe que representa os dados da prova objetiva de alguem em um dado ano. """
     presenca_cn: int = Field(title="Presença na prova objetiva de Ciências da Natureza.")
     presenca_ch: int = Field(title="Presença na prova objetiva de Ciências Humanas.")
     presenca_lc: int = Field(title="Presença na prova objetiva de Linguagens e Códigos.")
@@ -109,6 +115,7 @@ class DadosProvaObjetiva(BaseModel):
     tp_lingua : bool = Field(title="Língua Estrangeira.")
 
 class DadosRedacao(BaseModel):
+    """ Classe que representa os dados da prova de redação """
     tp_status_redacao: int = Field(title="Situação da redação do participante.")
     nu_nota_comp1:int = Field(title="Nota da competência 1 - Demonstrar domínio da modalidade escrita formal da Língua Portuguesa.")
     nu_nota_comp2:int = Field(title="Nota da competência 2 - Compreender a proposta de redação e aplicar conceitos das várias áreas de conhecimento para desenvolver o tema, dentro dos limites estruturais do texto dissertativo-argumentativo em prosa.")
@@ -118,6 +125,7 @@ class DadosRedacao(BaseModel):
     nu_nota_redacao:int = Field(title="Nota da prova de redação.")
 
 class RespostasQuestionario(BaseModel):
+    """ Classe que representa as respostas do questionário. """
     Q001 :str = Field(title="Até que série seu pai, ou o homem responsável por você, estudou?")
     Q002 :str = Field(title="Até que série sua mãe, ou a mulher responsável por você, estudou?")
     Q003 :str = Field(title="A partir da apresentação de algumas ocupações divididas em grupos ordenados, indique o grupo que contempla a ocupação mais próxima da ocupação do seu pai ou do homem responsável por você. (Se ele não estiver trabalhando, escolha uma ocupação pensando no último trabalho dele).")

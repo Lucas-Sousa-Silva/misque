@@ -1,5 +1,14 @@
+# Base dependencies
+pydantic
+
+# Install dependencies for fastapi
 fastapi
 uvicorn
-asyncpg
-pydantic
 python-multipart
+
+# Dependencies for database
+asyncpg
+
+# Dependencies for criptography
+python-jose
+passlib
