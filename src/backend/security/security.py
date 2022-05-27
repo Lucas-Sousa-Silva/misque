@@ -1,7 +1,6 @@
 """ Module for storage of security globals (Singleton(I hope that I don't define again these funcions )) """
 from datetime import datetime, timedelta
 from pydantic import BaseModel
-from typing import Union
 
 from asyncpg import Connection, Pool
 from jose import JWTError, jwt
@@ -15,15 +14,13 @@ from fastapi.security import OAuth2PasswordBearer
 SECRET_KEY = "20735005b378d3041882a3d6a6ff09e958d5f1cd8e5c09acd2b1ae88fd3559ac"
 ALGORITHM = "HS512"
 
-# The user must generate another token each week
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class TokenData(BaseModel):
-    username: Union[str, None] = None
+    username: str | None = None
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -31,7 +28,7 @@ def verify_password(plain_password, hashed_password):
 def generate_hash(pwd):
     return pwd_context.hash(pwd)
 
-def create_access_token(data:dict, expires_delta:Union[timedelta,None] = None):
+def create_access_token(data:dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -56,7 +53,7 @@ async def authenticate_user(connection: Connection, username: str, password:str)
     return user
 
 async def get_current_user(
-    pool:Pool = Depends(get_pool),
+    pool: Pool = Depends(get_pool),
     token: str = Depends(oauth2_scheme)
 ):
     credentials_exception = HTTPException(

@@ -3,7 +3,7 @@
 --  / / / / / / (__  ) /_/ / /_/ /  __/
 -- /_/ /_/ /_/_/____/\__, /\__,_/\___/ 
 --                     /_/             
--- Copyright (C) 2022  Lucas Sousa Sivla
+-- Copyright (C) 2022  Lucas Sousa Silva
 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -17,7 +17,13 @@
 
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 -------------------------------------------------------------------------------
+---------- TABELAS REALATIVAS Á DADOS SALVOS DOS MICRODADOS DO ENEM -----------
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS ESTADOS (
     CO_UF                       SMALLINT NOT NULL PRIMARY KEY,
     SG_UF                       VARCHAR(2) NOT NULL UNIQUE
@@ -257,4 +263,111 @@ CREATE TABLE IF NOT EXISTS QUESTIONARIO_SOCIOECONOMICO (
     Q023                        CHAR NOT NULL,
     Q024                        CHAR NOT NULL,
     Q025                        CHAR NOT NULL
+);
+
+-------------------------------------------------------------------------------
+--- TABELAS REALATIVAS Á DADOS SALVOS DOS TESTES MISQUE E QUESTÕES DO ENEM ----
+-------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS MATERIAS(
+    CODIGO                      VARCHAR(2) NOT NULL UNIQUE PRIMARY KEY,
+    NOME                        VARCHAR(50) NOT NULL UNIQUE
+);
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS CONTAS(
+    NICK                        VARCHAR(20) NOT NULL CHECK(LENGTH(NICK) > 6) PRIMARY KEY,
+    NASCIMENTO                  DATE NOT NULL,
+    SENHA_HASH                  TEXT
+);
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS TESTES_ENEM(
+    -- CÓDIGO INTERNO DO ENEM --
+    CODIGO_PROVA                SMALLINT NOT NULL PRIMARY KEY,
+
+    -- FK DA TABELA DE MATERIAS --
+    CODIGO_MATERIA              VARCHAR(2) REFERENCES MATERIAS(CODIGO),
+    COR                         VARCHAR(15),
+    ANO                         SMALLINT NOT NULL
+);
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ITEMS_ENEM(
+    CODIGO_ITEM                 INTEGER NOT NULL PRIMARY KEY,
+    ENUNCIADO                   TEXT NOT NULL,
+    ALTERNATIVA_A               TEXT NOT NULL,
+    ALTERNATIVA_B               TEXT NOT NULL,
+    ALTERNATIVA_C               TEXT NOT NULL,
+    ALTERNATIVA_D               TEXT NOT NULL,
+    ALTERNATIVA_E               TEXT NOT NULL,
+    RESPOSTA                    CHAR NOT NULL,
+    HABILIDADE                  SMALLINT NOT NULL,
+    LINGUA                      BOOLEAN,
+    ADAPTADO                    BOOLEAN
+);
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS QUESTOES_ENEM(
+    -- FK DA TABELA ITEMS --
+    CODIGO_ITEM                 INTEGER REFERENCES ITEMS_ENEM(CODIGO_ITEM),
+    CODIGO_PROVA                SMALLINT REFERENCES TESTES_ENEM(CODIGO_PROVA),
+    POSICAO                     SMALLINT NOT NULL
+);
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS TESTES_MISQUE(
+    -- FK DA TABELA DE CONTAS (ESTABELECE UMA RELAÇÃO DE UM PRA MUITOS, UMA CONTA PARA VÁRIOS TESTES_MISQUE) --
+    NICK_CONTA                   VARCHAR(20) REFERENCES CONTAS(NICK),
+
+    ID_TESTE                     SERIAL PRIMARY KEY,
+    CRIADO                       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INICIADO                     TIMESTAMP,
+    TERMINADO                    TIMESTAMP
+);
+
+-------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS QUESTOES_MISQUE(
+    -- FKS DA TABELA DE QUESTOES_ENEM --
+    CODIGO_ITEM                  SMALLINT NOT NULL,
+
+    -- FKS DA TABELA DE TESTES_MISQUE --
+    ID_TESTE                     INTEGER REFERENCES TESTES_MISQUE(ID_TESTE),
+    -- RESPOSTA DO USUÁRIO, PRECISA SER COMPUTADA PARA AVERIGUAR SE ESTÁ CORRETA. --
+    RESPOSTA_MISQUE              CHAR,
+
+    -- ASSEGURAR QUE NUNHUMA QUESTÃO SE REPETIRÁ PARA UM TESTE MISQUE  --
+    CONSTRAINT IDENTIFICACAO_DA_QUESTAO_ENEM UNIQUE(CODIGO_ITEM, ID_TESTE)
+);
+
+-------------------------------------------------------------------------------
+------------ FUNÇÕES E VIEWS PARA MAIS FÁCIL MANIPULAÇÃO DOS DADOS ------------
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- GERA A ORDEM EM QUE OS TESTES_MISQUE SÃO CRIADOS DE ACORDO COM O NICK E
+-- TIMESTAMP DE CRIAÇÃO PARA USO DA VIEW TESTES_MISQUE_ORDINAL
+CREATE FUNCTION GERAR_ORDINAIS_TESTES_MISQUE(
+    IN NICK VARCHAR(20),
+    IN CR TIMESTAMP,
+    OUT ORDINAL INTEGER
+) AS $$ WITH ORDINAIS_TST AS(
+    SELECT ROW_NUMBER() OVER(
+            ORDER BY CRIADO ASC
+        ) AS ORDINAL,
+        CRIADO
+    FROM TESTES_MISQUE
+    WHERE NICK_CONTA = NICK
+    ORDER BY CRIADO ASC
+)
+SELECT ORDINAL
+FROM ORDINAIS_TST
+WHERE CRIADO = CR $$LANGUAGE SQL;
+
+-------------------------------------------------------------------------------
+CREATE VIEW TESTES_MISQUE_ORDINAL AS(
+    SELECT *,
+        GERAR_ORDINAIS_TESTES_MISQUE(NICK_CONTA, CRIADO) AS ORDINAL
+    FROM TESTES_MISQUE
 );

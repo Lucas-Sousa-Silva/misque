@@ -1,6 +1,5 @@
 import asyncpg
 
-
 async def create_postgres_pool():
     connection_settings  = {
         "user":"enem",
