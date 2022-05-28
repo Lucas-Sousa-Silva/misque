@@ -17,18 +17,6 @@ class ContaComHash(Conta):
 
     hashed_password:str = Field()
 
-class Questao(BaseModel):
-
-    identidade: uuid.UUID = Field(description="UUID da questão. Deve ser única no universo.", const=True)
-    comando: str = Field(description="Comando da questão")
-    alternativas: Dict[str, str] = Field(
-        default = {'A':None,'B':None,'C':None,'D':None,'E':None,},
-        description = "Alternativas da questão, deve conter alternativas",
-        min_length = 5,
-        max_length = 5,
-    )
-    resposta: Optional[str] = Field(description="Caso configurada mostra qual a resposta da questão.")
-
 
 class Materia(BaseModel):
 
@@ -36,20 +24,35 @@ class Materia(BaseModel):
     codigo: str = Field(description="Código da matéria.", min_length=2, max_length=2) 
 
 
-class Teste(BaseModel):
+class Questao(BaseModel):
 
+    enunciado: str = Field(description="Comando da questão")
+    alternativas: Dict[str, str] = Field(
+        default = {'A':None,'B':None,'C':None,'D':None,'E':None,},
+        description = "Alternativas da questão, deve conter alternativas",
+    )
+    resposta: Optional[str] = Field(description="Caso configurada mostra qual a resposta da questão.")
+
+class QuestaoENEM(Questao):
+
+    codigo_item: int = Field(description="Código interno do enem. Ou caso for de um ano esotérico, é customizado")
+    habilidade:int = Field(description="Mostra o nível de habilidade para responder á esta questão.")
+    lingua: bool | None = Field(description="Se é inglês é True, se é espanhol é False, se não é null.")
+    adaptado: bool | None = Field(description="Se é adaptado ou não. Pode ser nulo")
+
+class TesteENEM(BaseModel):
+    codigo_prova: int = Field(description="Codigo identificador da")
     materia: Materia = Field(description="Matéria que essa prova usa")
-    questoes: List[Questao] = Field(description="Todas as questões do ano desse teste.")
 
 
-class TesteENEM(Teste):
+class TesteENEM(BaseModel):
 
     ano: int = Field(description="Ano da prova do enem")
     cor: str = Field(description="Cor da prova")
     reaplicacao: bool = Field(description="Campo descreve se esta prova é uma reaplicação")
 
 
-class TesteMisque(Teste):
+class TesteMisque(BaseModel):
 
     participante: Conta = Field(description="Conta de quem quis fazer a prova")
     criado: datetime = Field(description="Momento em que o teste foi criado")

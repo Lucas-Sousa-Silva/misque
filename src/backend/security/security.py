@@ -4,11 +4,11 @@ from pydantic import BaseModel
 
 from asyncpg import Connection, Pool
 from jose import JWTError, jwt
-from modules.accounting.normal_user_accounting import get_conta_by_nick
+from modules.accounting.normal_user_accounting import get_conta_com_hash
 from dependencies.dependencies import get_pool
 from models.testingmodels import ContaComHash
 from passlib.context import CryptContext
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 SECRET_KEY = "20735005b378d3041882a3d6a6ff09e958d5f1cd8e5c09acd2b1ae88fd3559ac"
@@ -45,7 +45,7 @@ def get_username(token:str):
     return username
 
 async def authenticate_user(connection: Connection, username: str, password:str) -> ContaComHash | bool:
-    user = await get_conta_by_nick(connection, username)
+    user = await get_conta_com_hash(connection, username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -55,7 +55,7 @@ async def authenticate_user(connection: Connection, username: str, password:str)
 async def get_current_user(
     pool: Pool = Depends(get_pool),
     token: str = Depends(oauth2_scheme)
-):
+)-> ContaComHash:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -70,10 +70,9 @@ async def get_current_user(
         raise credentials_exception
     
     async with pool.acquire() as connection:
-        conta = await get_conta_by_nick(connection, nick=token_data.username)
+        conta = await get_conta_com_hash(connection, nick=token_data.username)
 
     if conta is None:
-        print(conta," é nula")
         raise credentials_exception
 
     return conta
